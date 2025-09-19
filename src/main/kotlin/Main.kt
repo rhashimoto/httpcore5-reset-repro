@@ -13,7 +13,7 @@ fun main() {
       8080,
       null,
       mapOf(
-        "/" to DemoRequestHandler,
+        "/" to TimestampHandler,
         "/mjpeg" to MotionJPEGHandler()
       )
     )
@@ -25,7 +25,7 @@ fun main() {
       8443,
       sslContext,
       mapOf(
-        "/" to DemoRequestHandler,
+        "/" to TimestampHandler,
         "/mjpeg" to MotionJPEGHandler()
       )
     )

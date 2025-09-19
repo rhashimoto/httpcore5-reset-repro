@@ -23,6 +23,15 @@ private val JPEG_FILES = arrayListOf(
 
 private val logger = Logger.getLogger("MotionJPEGHandler")
 
+// Handler that returns a motion JPEG sequence using
+// MIME type multipart/x-mixed-replace. This is an
+// infinite sequence so the response does not end.
+//
+// The interesting code is actually in the producer
+// class below this one.
+//
+// This handler works on HTTP but throws a
+// H2StreamResetException on HTTPS.
 class MotionJPEGHandler(
 ) : AsyncServerRequestHandler<Message<HttpRequest, Void>> {
   override fun prepare(
@@ -53,6 +62,8 @@ class MotionJPEGHandler(
   }
 }
 
+// This producer sends an infinite sequence of multipart
+// JPEG images.
 private class MotionJPEGEntityProducer(
   fragmentSizeHint: Int = 65536
 ) : AbstractBinAsyncEntityProducer(
