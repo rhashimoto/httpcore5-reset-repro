@@ -16,6 +16,17 @@ dependencies {
   testImplementation(kotlin("test"))
 }
 
+tasks.jar.configure {
+  manifest {
+    attributes(mapOf("Main-Class" to "MainKt"))
+  }
+  configurations["compileClasspath"].forEach { file ->
+    from(zipTree(file.absoluteFile))
+  }
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+  exclude("META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA")
+}
+
 tasks.test {
   useJUnitPlatform()
 }

@@ -107,7 +107,6 @@ private fun buildServer(
         .add(ResponseConnControl())
         .add(ResponseDate()).add(ResponseServer()).build())
     .setExceptionCallback {
-      logger.info("$it")
       logger.info(it.stackTraceToString())
     }
     .setRequestRouter(routerBuilder.build())
