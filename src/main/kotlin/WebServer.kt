@@ -17,22 +17,20 @@ import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap
 import org.apache.hc.core5.http2.ssl.ConscryptServerTlsStrategy
 import org.apache.hc.core5.reactor.IOReactorConfig
 import org.apache.hc.core5.reactor.ListenerEndpoint
-import org.conscrypt.Conscrypt
 import java.net.BindException
 import java.net.InetSocketAddress
-import java.security.KeyStore
+import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
-import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 
 private val logger = Logger.getLogger("WebServer")
 
 fun startWebServer(
   coroutineScope: CoroutineScope,
-  keyStore: KeyStore?,
+  sslContext: SSLContext?,
   handlers: Map<String, AsyncServerRequestHandler<Message<HttpRequest, Void>>>
 ) {
   val executor = Executors.newSingleThreadExecutor()
@@ -41,7 +39,7 @@ fun startWebServer(
     var server: HttpAsyncServer? = null
     try {
       // TODO: Handle network changes.
-      server = buildServer(keyStore, handlers)
+      server = buildServer(sslContext, handlers)
       server.start()
 
       // During iterative development, sometimes the port is not immediately
@@ -50,7 +48,8 @@ fun startWebServer(
       do {
         try {
           endpoint = server.listen(
-            InetSocketAddress(8080), if (keyStore != null) URIScheme.HTTPS else URIScheme.HTTP
+            InetSocketAddress(8080),
+            if (sslContext != null) URIScheme.HTTPS else URIScheme.HTTP
           ).get()
         } catch (e: ExecutionException) {
           if (e.cause is BindException) {
@@ -61,7 +60,7 @@ fun startWebServer(
           }
         }
       } while (endpoint == null)
-      if (keyStore == null) {
+      if (sslContext == null) {
         logger.warning("Web traffic is NOT encrypted")
       }
       logger.info("Listening on ${endpoint.address}")
@@ -78,7 +77,8 @@ fun startWebServer(
 }
 
 private fun buildServer(
-  keyStore: KeyStore?, handlers: Map<String, AsyncServerRequestHandler<Message<HttpRequest, Void>>>
+  sslContext: SSLContext?,
+  handlers: Map<String, AsyncServerRequestHandler<Message<HttpRequest, Void>>>
 ): HttpAsyncServer {
   // In cases where the incoming Host header value or SNI does not match
   // the canonical host name, using the register() method to install a
@@ -101,13 +101,8 @@ private fun buildServer(
         .add(ResponseDate()).add(ResponseServer()).build()
     ).setExceptionCallback { logger.severe("Error $it") }.setRequestRouter(routerBuilder.build())
 
-  if (keyStore != null) {
-    val tlsContext = SSLContext.getInstance("TLSv1.2", Conscrypt.newProvider()).apply {
-      val keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
-      keyManagerFactory.init(keyStore, "password".toCharArray())
-      init(keyManagerFactory.keyManagers, null, null)
-    }
-    serverBootstrap.setTlsStrategy(ConscryptServerTlsStrategy(tlsContext))
+  if (sslContext != null) {
+    serverBootstrap.setTlsStrategy(ConscryptServerTlsStrategy(sslContext))
   }
 //   If a custom router is not used, register handlers this way.
 //  for ((path, handler) in handlers) {
@@ -131,13 +126,9 @@ val DemoRequestHandler = object : AsyncServerRequestHandler<Message<HttpRequest,
     context: HttpContext
   ) {
     logger.info("handle: $requestObject")
-    val request = requestObject.head
-    val headers = request.headers.joinToString("\n") {
-      "${it.name}: ${it.value}"
-    }
     val response = AsyncResponseBuilder.create(HttpStatus.SC_OK).setEntity(
         AsyncEntityProducers.create(
-          "$request\n$headers", ContentType.TEXT_PLAIN
+          Date().toString(), ContentType.TEXT_PLAIN
         )
       ).build()
     responseTrigger.submitResponse(response, context)
