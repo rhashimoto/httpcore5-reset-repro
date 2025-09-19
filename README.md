@@ -17,6 +17,21 @@ INFO: org.apache.hc.core5.http2.H2StreamResetException: Stream reset (1)
         at java.base/java.lang.Thread.run(Thread.java:1447)
 ```
 
+# Repro steps
+* Launch the application. This will start a HTTP server on port 8080, and a HTTPS server on port 8443.
+* Use a web browser to visit URLs:
+  * http://localhost:8080/
+  * https://localhost:8443/
+
+  These URLs will return the current date and time.
+* Visit URLs:
+  * http://localhost:8080/mjpeg
+  * https://localhost:8443/mjpeg
+ 
+  These URLs should display an infinite sequence of JPEG images, but only the HTTP server
+  succeeds in this while the browser disconnects from the HTTPS server and the server
+  logs an exception.
+
 # Acknowledgements
 [Test images](https://commons.wikimedia.org/wiki/Category:Brain_MRI_case_0038) are © Nevit Dilmen,
 used under Creative Commons license CC BY-SA 3.0.
