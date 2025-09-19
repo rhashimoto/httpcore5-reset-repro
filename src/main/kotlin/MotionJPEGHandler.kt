@@ -1,17 +1,4 @@
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.launch
-import org.apache.hc.core5.http.ContentType
-import org.apache.hc.core5.http.EntityDetails
-import org.apache.hc.core5.http.HttpHeaders
-import org.apache.hc.core5.http.HttpRequest
-import org.apache.hc.core5.http.HttpStatus
-import org.apache.hc.core5.http.Message
+import org.apache.hc.core5.http.*
 import org.apache.hc.core5.http.message.BasicHeader
 import org.apache.hc.core5.http.message.BasicNameValuePair
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer
@@ -23,13 +10,7 @@ import org.apache.hc.core5.http.nio.entity.DiscardingEntityConsumer
 import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder
 import org.apache.hc.core5.http.nio.support.BasicRequestConsumer
 import org.apache.hc.core5.http.protocol.HttpContext
-import java.io.IOException
-import java.io.OutputStream
 import java.nio.ByteBuffer
-import java.util.Deque
-import java.util.concurrent.Executors
-import java.util.concurrent.LinkedBlockingDeque
-import java.util.concurrent.atomic.AtomicReference
 import java.util.logging.Logger
 
 private val JPEG_FILES = arrayListOf(
@@ -120,5 +101,6 @@ private class MotionJPEGEntityProducer(
 
   override fun failed(cause: java.lang.Exception) {
     logger.info("MotionJPEGEntityProducer failed $cause")
+    logger.info(cause.stackTraceToString())
   }
 }

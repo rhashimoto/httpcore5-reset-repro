@@ -30,6 +30,7 @@ private val logger = Logger.getLogger("WebServer")
 
 fun startWebServer(
   coroutineScope: CoroutineScope,
+  port: Int,
   sslContext: SSLContext?,
   handlers: Map<String, AsyncServerRequestHandler<Message<HttpRequest, Void>>>
 ) {
@@ -48,7 +49,7 @@ fun startWebServer(
       do {
         try {
           endpoint = server.listen(
-            InetSocketAddress(8080),
+            InetSocketAddress(port),
             if (sslContext != null) URIScheme.HTTPS else URIScheme.HTTP
           ).get()
         } catch (e: ExecutionException) {

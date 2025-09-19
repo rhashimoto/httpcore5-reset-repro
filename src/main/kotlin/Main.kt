@@ -7,12 +7,22 @@ import javax.net.ssl.SSLContext
 
 fun main() {
   runBlocking {
-    // This value can be set to null to use HTTP instead
-    // of HTTPS.
-    val sslContext: SSLContext? = buildSSLContext()
-
+    // Run unencrypted web server on port 8080.
     startWebServer(
       this,
+      8080,
+      null,
+      mapOf(
+        "/" to DemoRequestHandler,
+        "/mjpeg" to MotionJPEGHandler()
+      )
+    )
+
+    // Run TLS web server on port 8443.
+    val sslContext: SSLContext = buildSSLContext()
+    startWebServer(
+      this,
+      8443,
       sslContext,
       mapOf(
         "/" to DemoRequestHandler,
