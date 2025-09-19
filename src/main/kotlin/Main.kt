@@ -7,11 +7,11 @@ import javax.net.ssl.SSLContext
 
 fun main() {
   runBlocking {
-    val sslContext = buildSSLContext()
+    val sslContext: SSLContext? = null//buildSSLContext()
     startWebServer(
       this,
       sslContext,
-      mapOf("/" to DemoRequestHandler)
+      mapOf("/" to MotionJPEGHandler(this))
     )
     awaitCancellation()
   }
