@@ -33,12 +33,12 @@ fun startWebServer(
   sslContext: SSLContext?,
   handlers: Map<String, AsyncServerRequestHandler<Message<HttpRequest, Void>>>
 ) {
+  // Run server in its own thread.
   val executor = Executors.newSingleThreadExecutor()
   val dispatcher = executor.asCoroutineDispatcher()
   coroutineScope.launch(dispatcher) {
     var server: HttpAsyncServer? = null
     try {
-      // TODO: Handle network changes.
       server = buildServer(sslContext, handlers)
       server.start()
 
@@ -94,12 +94,19 @@ private fun buildServer(
     }
   }
 
-  val serverBootstrap = H2ServerBootstrap.bootstrap().setCanonicalHostName("motogpure.lan").setIOReactorConfig(
-      IOReactorConfig.custom().setSoTimeout(10, TimeUnit.SECONDS).setTcpNoDelay(true).build()
-    ).setHttpProcessor(
-      HttpProcessorBuilder.create().add(ResponseConformance()).add(ResponseContent()).add(ResponseConnControl())
-        .add(ResponseDate()).add(ResponseServer()).build()
-    ).setExceptionCallback { logger.severe("Error $it") }.setRequestRouter(routerBuilder.build())
+  val serverBootstrap = H2ServerBootstrap.bootstrap()
+    .setCanonicalHostName("motogpure.lan")
+    .setIOReactorConfig(
+      IOReactorConfig.custom()
+        .setSoTimeout(10, TimeUnit.SECONDS)
+        .setTcpNoDelay(true).build())
+    .setHttpProcessor(
+      HttpProcessorBuilder.create()
+        .add(ResponseConformance()).add(ResponseContent())
+        .add(ResponseConnControl())
+        .add(ResponseDate()).add(ResponseServer()).build())
+    .setExceptionCallback { logger.severe("Error $it") }
+    .setRequestRouter(routerBuilder.build())
 
   if (sslContext != null) {
     serverBootstrap.setTlsStrategy(ConscryptServerTlsStrategy(sslContext))
