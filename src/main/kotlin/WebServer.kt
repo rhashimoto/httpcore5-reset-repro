@@ -96,7 +96,7 @@ private fun buildServer(
   }
 
   val serverBootstrap = H2ServerBootstrap.bootstrap()
-    .setCanonicalHostName("motogpure.lan")
+    .setCanonicalHostName("localhost")
     .setIOReactorConfig(
       IOReactorConfig.custom()
         .setSoTimeout(10, TimeUnit.SECONDS)
@@ -106,7 +106,10 @@ private fun buildServer(
         .add(ResponseConformance()).add(ResponseContent())
         .add(ResponseConnControl())
         .add(ResponseDate()).add(ResponseServer()).build())
-    .setExceptionCallback { logger.severe("Error $it") }
+    .setExceptionCallback {
+      logger.info("$it")
+      logger.info(it.stackTraceToString())
+    }
     .setRequestRouter(routerBuilder.build())
 
   if (sslContext != null) {

@@ -100,7 +100,6 @@ private class MotionJPEGEntityProducer(
   }
 
   override fun failed(cause: java.lang.Exception) {
-    logger.info("MotionJPEGEntityProducer failed $cause")
-    logger.info(cause.stackTraceToString())
+    // Server will log exception.
   }
 }
