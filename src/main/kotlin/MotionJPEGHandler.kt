@@ -81,10 +81,12 @@ class MotionJPEGHandler(
     responseTrigger.submitResponse(response, context)
   }
 
-  fun addBuffers(
+  // Add multipart header and and data for one image.
+  private fun addBuffers(
     bufferQueue: ArrayDeque<ByteBuffer>,
     filename: String
   ) {
+    // Fetch image data.
     val imageBuffer = object {}::class.java.getResourceAsStream(filename)!!.use {
       ByteBuffer.wrap(it.readBytes())
     }
