@@ -6,16 +6,19 @@ import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 
 fun main() {
+  val handlers = mapOf(
+    "/" to TimestampHandler,
+    "/mjpeg" to MotionJPEGHandler(),
+    "/body" to BodyHandler
+  )
+
   runBlocking {
     // Run unencrypted web server on port 8080.
     startWebServer(
       this,
       8080,
       null,
-      mapOf(
-        "/" to TimestampHandler,
-        "/mjpeg" to MotionJPEGHandler()
-      )
+      handlers
     )
 
     // Run TLS web server on port 8443.
@@ -24,10 +27,7 @@ fun main() {
       this,
       8443,
       sslContext,
-      mapOf(
-        "/" to TimestampHandler,
-        "/mjpeg" to MotionJPEGHandler()
-      )
+      handlers
     )
     awaitCancellation()
   }
