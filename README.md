@@ -28,7 +28,7 @@ INFO: org.apache.hc.core5.http2.H2StreamResetException: Stream reset (1)
   * http://localhost:8080/mjpeg
   * https://localhost:8443/mjpeg
  
-  These URLs should display an infinite sequence of JPEG images, but only the HTTP server
+  These URLs should display a sequence of JPEG images, but only the HTTP server
   succeeds in this. On the HTTPS server the browser disconnects and the server
   logs an exception.
 
