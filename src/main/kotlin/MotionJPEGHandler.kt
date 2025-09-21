@@ -53,13 +53,13 @@ class MotionJPEGHandler(
     logger.info("handle: ${requestObject.head}")
 
     // Send JPEG images to the requesting client.
-    var index = 0
+    val filenameIterator = JPEG_FILES.iterator()
     val bufferQueue = ArrayDeque<ByteBuffer>()
     val entity = AsyncEntityProducers.createBinary({ stream ->
       if (bufferQueue.isEmpty()) {
-        if (index < JPEG_FILES.size) {
+        if (filenameIterator.hasNext()) {
           // Enqueue the buffers for the next image.
-          addBuffers(bufferQueue, JPEG_FILES[index++])
+          addBuffers(bufferQueue, filenameIterator.next())
         } else {
           stream.endStream()
           return@createBinary
