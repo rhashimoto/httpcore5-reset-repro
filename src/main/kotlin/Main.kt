@@ -10,7 +10,7 @@ import org.apache.hc.core5.http.protocol.HttpContext
 import org.apache.hc.core5.http2.HttpVersionPolicy
 import org.apache.hc.core5.http2.config.H2Config
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap
-import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy
+import org.apache.hc.core5.http2.ssl.ConscryptServerTlsStrategy
 import org.apache.hc.core5.io.CloseMode
 import org.apache.hc.core5.reactor.IOReactorConfig
 import org.apache.hc.core5.util.TimeValue
@@ -40,7 +40,7 @@ fun main() {
     .setExceptionCallback {
       logger.info(it.stackTraceToString())
     }
-    .setTlsStrategy(H2ServerTlsStrategy(sslContext))
+    .setTlsStrategy(ConscryptServerTlsStrategy(sslContext))
     .register("*", CustomServerRequestHandler())
     .create()
 
