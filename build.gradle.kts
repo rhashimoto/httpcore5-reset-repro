@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-  implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.3.5")
+  implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.3.6")
   implementation("org.conscrypt:conscrypt-openjdk-uber:2.5.2")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
   testImplementation(kotlin("test"))
