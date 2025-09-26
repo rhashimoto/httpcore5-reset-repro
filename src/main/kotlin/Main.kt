@@ -21,15 +21,20 @@ import org.apache.hc.core5.http2.protocol.H2RequestContent
 import org.apache.hc.core5.http2.ssl.ConscryptServerTlsStrategy
 import org.apache.hc.core5.io.CloseMode
 import org.apache.hc.core5.reactor.IOReactorConfig
+import org.apache.hc.core5.testing.nio.LoggingExceptionCallback
+import org.apache.hc.core5.testing.nio.LoggingH2StreamListener
+import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator
+import org.apache.hc.core5.testing.nio.LoggingIOSessionListener
 import org.apache.hc.core5.util.TimeValue
 import org.conscrypt.Conscrypt
+import org.slf4j.LoggerFactory
 import java.net.InetSocketAddress
 import java.security.KeyStore
 import java.util.logging.Logger
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 
-private val logger = Logger.getLogger("WebServer")
+private val logger = LoggerFactory.getLogger("main")
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -49,9 +54,10 @@ fun main() {
       .add(H2RequestConnControl.INSTANCE)
       .add(H2RequestContent.INSTANCE)
       .build())
-    .setExceptionCallback {
-      logger.info(it.stackTraceToString())
-    }
+    .setStreamListener(LoggingH2StreamListener.INSTANCE)
+    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
+    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
     .setTlsStrategy(ConscryptServerTlsStrategy(sslContext))
     .setRequestRouter(
       RequestRouter.builder<Supplier<AsyncServerExchangeHandler>>()
@@ -104,7 +110,6 @@ private class CustomServerRequestHandler : AsyncServerRequestHandler<Message<Htt
     responseTrigger: AsyncServerRequestHandler.ResponseTrigger,
     context: HttpContext
   ) {
-    logger.info("handle $context")
     val response = AsyncResponseBuilder.create(HttpStatus.SC_OK)
       .setEntity(
         AsyncEntityProducers.create(
